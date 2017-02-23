@@ -1,0 +1,27 @@
+Vagrant.configure("2") do |config|
+	
+  config.vm.provision "shell", path: "passupdate.sh"
+  config.vm.provision "shell", path: "top5.sh"
+  config.vm.provision "shell", path: "update.sh"
+  
+	config.vm.define "webserver" do |webserver|
+
+		webserver.vm.provision "shell", inline: <<-SHELL
+			sudo apt-get update
+			sudo apt-get install -y apache2
+		SHELL
+
+		webserver.vm.box="ubuntu/trusty64"
+
+		webserver.vm.network :forwarded_port, guest: 22, host: 10124, id: "ssh"
+       
+		end
+
+	end
+
+	config.vm.define "client" do |client|
+		client.vm.box="scotch/box"
+
+			client.vm.network :forwarded_port, guest: 22, host: 10244, id: "ssh"
+		end	
+	end
